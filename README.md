@@ -1,36 +1,7 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Ten projekt jest tylko po to, aby łatwiej mi było spisać na komputerze wszystkie posiadane książki oraz te, które chce kupić.
 
-## Getting Started
+Strona umożliwia zeskanowanie barcode'u książki (będącego jego ISBN), pobiera dane o znalezionej książce i pyta się użytkownika czy to ta książka (pseudo zabezpieczenie w razie jakby błędnie odczytywało). Jeśli tak to zapisuje te dane w bazie danych, jeśli nie to jest możliwość ponownego zeskanowania czy też wprowadzenia tego ISBN ręcznie.
 
-First, run the development server:
+Dodatkowo, aby móc sprawdzić jakie książki są już zapisane to jest możliwość ich wyświetlenie i posegregowania np. alfabetycznie.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+ze względu na charakter tej strony nie będę się starać by była ona zrobiona poprawnie, a tylko na tym by działała
