@@ -1,15 +1,18 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 
-export default function Scanner({ mode }: { mode: "owned" | "wanted" }) {
+export default function Scanner({ setResult }: {
+    setResult: Dispatch<SetStateAction<{
+        show: boolean;
+        result: string;
+    }>>
+}) {
     const videoRef = useRef<HTMLVideoElement | null>(null);
     const streamRef = useRef<MediaStream | null>(null);
     const [scanning, setScanning] = useState(false);
-    const [lastResult, setLastResult] = useState<string | null>(null);
     const detectorRef = useRef<any | null>(null);
     const rafRef = useRef<number | null>(null);
-    const [showResult, setShowResult] = useState(false);
 
     useEffect(() => {
         return () => {
@@ -28,12 +31,9 @@ export default function Scanner({ mode }: { mode: "owned" | "wanted" }) {
             const formats = ["ean_13", "ean_8", "upc_a", "upc_e", "code_128"];
             detectorRef.current = new (window as any).BarcodeDetector({ formats });
 
-            // acquire stream and store it; actual assignment to video element
-            // happens in an effect so it works when <video/> is mounted
             const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
             streamRef.current = stream;
 
-            // show video element (mount it) and let the effect attach the stream
             setScanning(true);
         } catch (e) {
             console.error("startScanner error:", e);
@@ -41,8 +41,6 @@ export default function Scanner({ mode }: { mode: "owned" | "wanted" }) {
         }
     };
 
-    // When scanning is enabled and the <video/> element is mounted, attach
-    // the previously acquired MediaStream and start playback + scanning.
     useEffect(() => {
         let mounted = true;
         const attachAndStart = async () => {
@@ -52,7 +50,6 @@ export default function Scanner({ mode }: { mode: "owned" | "wanted" }) {
             try {
                 videoRef.current.srcObject = streamRef.current;
                 await videoRef.current.play();
-                // start detection loop once playback begins
                 scanLoop();
             } catch (e) {
                 if (mounted) console.error("attachAndStart error:", e);
@@ -72,18 +69,11 @@ export default function Scanner({ mode }: { mode: "owned" | "wanted" }) {
             const detections = await detectorRef.current.detect(videoRef.current as HTMLVideoElement);
             if (detections && detections.length > 0) {
                 const value = detections[0].rawValue;
-                setLastResult(value);
-                fetch(`/api/isbn`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ isbn: value }),
-                }).catch((e) => console.error("Send ISBN error:", e));
                 stopScanner();
-                setShowResult(true);
+                setResult({ show: true, result: value });
                 return;
             }
         } catch (e) {
-            // detection might throw on some frames; ignore
         }
 
         rafRef.current = requestAnimationFrame(scanLoop);
@@ -94,7 +84,6 @@ export default function Scanner({ mode }: { mode: "owned" | "wanted" }) {
             cancelAnimationFrame(rafRef.current);
             rafRef.current = null;
         }
-        // stop tracks from streamRef if present
         if (streamRef.current) {
             const tracks = streamRef.current.getTracks();
             tracks.forEach((t) => t.stop());
@@ -104,7 +93,6 @@ export default function Scanner({ mode }: { mode: "owned" | "wanted" }) {
             try {
                 videoRef.current.srcObject = null;
             } catch (e) {
-                // ignore
             }
         }
         detectorRef.current = null;
@@ -143,17 +131,6 @@ export default function Scanner({ mode }: { mode: "owned" | "wanted" }) {
                         Uruchom skaner
                     </div>
                 </div>
-                {showResult &&
-                    <div className="absolute min-h-full min-w-full top-0 left-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm"
-                        onClick={() => {
-                            setShowResult(false)
-                        }}>
-
-                        <div className="p-4 border cursor-pointer rounded-lg text-center h-14 z-10 bg-white"                        >
-                            Wykryto: {lastResult}
-                        </div>
-                    </div>
-                }
             </>
             }
         </div >
