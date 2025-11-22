@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react"
 
+
+
 export default function BooksList({ mode, limit, skip }: { mode: "owned" | "wanted", limit: number, skip: number }) {
     const [books, setBooks] = useState<Array<{
         ISBN: string,
@@ -10,15 +12,16 @@ export default function BooksList({ mode, limit, skip }: { mode: "owned" | "want
         price: number | null,
     }>>([]);
 
-    useEffect(() => {
-        const fetchBooks = async () => {
-            const response = await fetch(`/api/getBooks?mode=${mode}&limit=${limit}&skip=${skip}`);
-            const data = await response.json();
-            if (data.ok) {
-                setBooks(data.books);
-            }
-        };
+    const fetchBooks = async () => {
+        setBooks([]);
+        const response = await fetch(`/api/getBooks?mode=${mode}&limit=${limit}&skip=${skip}`);
+        const data = await response.json();
+        if (data.ok) {
+            setBooks(data.books);
+        }
+    };
 
+    useEffect(() => {
         fetchBooks();
     }, [mode, limit, skip]);
 
@@ -44,6 +47,20 @@ export default function BooksList({ mode, limit, skip }: { mode: "owned" | "want
                                 {!!book.page_count && <p className="text-gray-700">Liczba stron: {book.page_count}</p>}
                                 {!!book.price && <p className="text-gray-700">Cena: {book.price}zł</p>}
                             </div>
+                            {mode === "wanted" && <div
+                                className="border-2 border-green-500 text-green-700 font-bold p-2 m-2 rounded-lg absolute right-4 top-4 cursor-pointer"
+                                onClick={async () => {
+                                    await fetch(`/api/boughtBook`, {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json'
+                                        },
+                                        body: JSON.stringify({ ISBN: book.ISBN })
+                                    });
+                                    await fetchBooks();
+                                }}>
+                                ZAKUPIONA
+                            </div>}
                         </div>
                     )
                 })}
