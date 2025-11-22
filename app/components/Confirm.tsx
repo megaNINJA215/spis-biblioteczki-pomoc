@@ -13,11 +13,12 @@ export default function Confirm(
         mode: "owned" | "wanted"
     }) {
     const [data, setData] = useState<{
-        originalTitle: string,
         title: string,
-        volumeNumber: number,
-        coverLink: string,
         authors: string[],
+        coverLink: string | null,
+        pageCount: number | null,
+        originalTitle: string | null,
+        volumeNumber: number | null,
     } | null>(null);
     const [error, setError] = useState<string | null>(null);
 
@@ -30,20 +31,20 @@ export default function Confirm(
                     body: JSON.stringify({ isbn: result }),
                 });
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                const json = await res.json();
+                const json: {
+                    title: string,
+                    authors: string[],
+                    coverLink: string | null,
+                    pageCount: number | null,
+                    originalTitle: string | null,
+                    volumeNumber: number | null,
+                } | null = await res.json();
                 console.log("Fetched book data:", json);
                 if (!json) {
-                    setData(null);
                     setError("Nie udało się znaleźć informacji o książce.");
                     return;
                 }
-                setData({
-                    title: json.title,
-                    authors: json.authors,
-                    coverLink: json.coverLink,
-                    originalTitle: json.originalTitle,
-                    volumeNumber: json.volumeNumber,
-                });
+                setData(json);
             } catch (e) {
                 console.error("Send ISBN error:", e);
             }
@@ -55,26 +56,19 @@ export default function Confirm(
     }, [showResult, result]);
 
     const saveBook = async (data: {
-        originalTitle: string,
         title: string,
-        volumeNumber: number,
-        coverLink: string,
         authors: string[],
+        coverLink: string | null,
+        pageCount: number | null,
+        originalTitle: string | null,
+        volumeNumber: number | null,
     } | null, mode: "owned" | "wanted") => {
         if (!data) return;
 
         await fetch('/api/saveBook', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                ISBN: result,
-                title: data.title,
-                authors: data.authors,
-                coverLink: data.coverLink,
-                originalTitle: data.originalTitle,
-                volumeNumber: data.volumeNumber,
-                mode: mode
-            })
+            body: JSON.stringify({ ISBN: result, ...data, mode })
         });
     }
 
@@ -86,7 +80,7 @@ export default function Confirm(
                 <div className="flex flex-row items-stretch justify-center">
 
                     <div className="p-4 border cursor-pointer rounded-lg text-center z-10 bg-white w-64 mx-2 flex items-center justify-center">
-                        <div>Tytuł: <strong>{data?.title ?? "Ładowanie..."}{" "}{data?.volumeNumber ?? ""}</strong></div>
+                        <div>Tytuł: <strong>{data?.title ?? "Ładowanie..."}{" "}{data && 'volumeNumber' in data ? data.volumeNumber ?? "" : ""}</strong></div>
                     </div>
                     <div className="p-4 border cursor-pointer rounded-lg text-center z-10 bg-white w-64 mx-2 flex items-center justify-center">
                         <div>{data?.authors.length == 1 ? "Autor" : "Autorzy"}: <strong>{(data?.authors?.join(", ") ?? "Ładowanie...")}</strong></div>
