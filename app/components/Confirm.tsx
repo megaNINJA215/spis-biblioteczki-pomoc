@@ -61,16 +61,23 @@ export default function Confirm(
     } | null, mode: "owned" | "wanted") => {
         if (!data) return;
 
-        await fetch('/api/saveBook', {
+        const response = await fetch('/api/saveBook', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ ISBN: result, ...data, mode })
-        });
+        }).then((res) => res.json());
+
+        if (!response.ok) {
+            setShowResult(true)
+            setError(response.message || "Wystąpił nieznany błąd podczas zapisywania książki.");
+            return;
+        }
+        setShowResult(false)
     }
 
     return showResult && <>
         {!error ?
-            <div className="absolute min-h-full min-w-full top-0 left-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm"
+            <div className="absolute min-h-full min-w-full top-0 left-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm z-5"
             >
                 <img src={data ? data?.coverLink ?? "https://manmar.am/storage/products/book_not_found.jpg" : undefined} alt={``} className="w-80 mb-4 object-cover rounded" />
                 <div className="flex flex-row items-stretch justify-center">
@@ -94,12 +101,11 @@ export default function Confirm(
                         onClick={async () => {
                             await saveBook(data, mode);
                             setData(null);
-                            setShowResult(false)
                         }}>
                         Potwierdź
                     </div>
                 </div>
-            </div> : <div className="absolute min-h-full min-w-full top-0 left-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm text-white text-2xl">
+            </div> : <div className="absolute min-h-full min-w-full top-0 left-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm text-white text-2xl  z-5">
 
                 <div className="p-4 border cursor-pointer rounded-lg text-center text-black z-10 bg-red-100 border-red-600 border-3 w-128 mx-2">
                     {error}

@@ -12,6 +12,17 @@ export async function POST(request: Request) {
         mode: "owned" | "wanted"
     } = await request.json();
 
+    const existingBook = await prisma.books.findFirst({
+        where: { ISBN: data.ISBN }
+    });
+
+    if (existingBook) {
+        return NextResponse.json({
+            ok: false,
+            message: `Książka o podanym ISBN już istnieje w bazie w kategorii ${existingBook.is_owned ? "posiadane" : "do kupienia"}.`
+        });
+    }
+
     await prisma.books.create({
         data: {
             ISBN: data.ISBN,

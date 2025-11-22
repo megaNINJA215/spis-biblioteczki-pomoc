@@ -29,12 +29,12 @@ export default function BooksList({ mode, limit, skip }: { mode: "owned" | "want
 
     return (
         <div className="w-9/10 mx-auto">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 -z-5">
                 {books.map((book, index) => {
                     console.log(skip + index + 1, book.authors?.join(', '));
 
                     return (
-                        <div key={book.ISBN} className=" border-4 border-gray-300 rounded-lg mb-4 flex flex-row items-center relative">
+                        <div key={book.ISBN} className=" border-4 border-gray-300 rounded-lg mb-4 flex flex-row items-center relative z-0">
                             <div className="h-48 w-36">
                                 <img
                                     src={book.cover || 'https://manmar.am/storage/products/book_not_found.jpg'} alt={`Okładka książki ${book.title}`}
