@@ -28,27 +28,60 @@ export default function BooksList({ mode, limit, skip }: { mode: "owned" | "want
 
 
     return (
-        <div className="w-9/10 mx-auto">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 -z-5">
+        <div className="w-9/10 mx-auto mb-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {books.map((book, index) => {
                     console.log(skip + index + 1, book.authors?.join(', '));
 
                     return (
-                        <div key={book.ISBN} className=" border-4 border-gray-300 rounded-lg mb-4 flex flex-row items-center relative z-0">
-                            <div className="h-48 w-36">
+                        <div key={book.ISBN} className=" border-4 border-gray-300 rounded-xl items-center relative z-0 text-wrap flex">
+                            <div className="sm:h-48 sm:w-36 h-36 w-24">
                                 <img
                                     src={book.cover || 'https://manmar.am/storage/products/book_not_found.jpg'} alt={`Okładka książki ${book.title}`}
-                                    className="h-48 w-32 flex justify-center items-center object-cover rounded-l-md"
+                                    className="sm:h-48 sm:w-36 h-36 w-24 flex justify-center items-center object-cover rounded-l-lg"
                                 />
                             </div>
-                            <div className="flex flex-col ml-2">
-                                <div className="text-xl font-black">{skip + index + 1}. {book.title}</div>
-                                <div className="text-gray-700 font-bold">~ {book.authors.join(', ')}</div>
-                                {!!book.page_count && <p className="text-gray-700">Liczba stron: {book.page_count}</p>}
-                                {!!book.price && <p className="text-gray-700">Cena: {book.price}zł</p>}
+                            <div className="ml-2 inline-block flex-1">
+                                <div className="text-base/5 sm:text-xl/[1.375rem] font-black line-clamp-3">{skip + index + 1}. {book.title}</div>
+                                <div className="text-gray-700 font-bold sm:text-base/5 text-sm/4 line-clamp-2">~ {book.authors.join(', ')}</div>
+                                {!!book.page_count ?
+                                    <>
+                                        <p className="text-gray-700 mt-[0.25rem] text-xs sm:text-base min-h-[1rem] sm:min-h-[1.5rem]">
+                                            Liczba stron: {book.page_count}
+                                        </p>
+                                        {!!book.price ?
+                                            <p className="text-gray-700 text-xs sm:text-base min-h-[1rem] sm:min-h-[1.5rem]">
+                                                Cena: {book.price.toFixed(2)}zł
+                                            </p>
+                                            :
+                                            <p className="text-gray-700 text-xs sm:text-base min-h-[1rem] sm:min-h-[1.5rem]">
+                                                {'\u00A0'}
+                                            </p>
+                                        }
+                                    </>
+                                    :
+                                    !!book.price ?
+                                        <>
+                                            <p className="text-gray-700 mt-[0.25rem] text-xs sm:text-base min-h-[1rem] sm:min-h-[1.5rem]">
+                                                Cena: {book.price.toFixed(2)}zł
+                                            </p>
+                                            <p className="text-gray-700 text-xs sm:text-base min-h-[1rem] sm:min-h-[1.5rem]">
+                                                {'\u00A0'}
+                                            </p>
+                                        </>
+                                        :
+                                        <>
+                                            <p className="text-gray-700 text-xs sm:text-base min-h-[1rem] sm:min-h-[1.5rem]">
+                                                {'\u00A0'}
+                                            </p>
+                                            <p className="text-gray-700 text-xs sm:text-base min-h-[1rem] sm:min-h-[1.5rem]">
+                                                {'\u00A0'}
+                                            </p>
+                                        </>
+                                }
                             </div>
                             {mode === "wanted" && <div
-                                className="border-2 border-green-500 text-green-700 font-bold p-2 m-2 rounded-lg absolute right-4 top-4 cursor-pointer"
+                                className="border-2 border-green-500 text-green-700 sm:font-bold sm:text-base text-xs p-2 rounded-lg absolute sm:right-4 sm:bottom-4 right-1 bottom-1 cursor-pointer"
                                 onClick={async () => {
                                     await fetch(`/api/boughtBook`, {
                                         method: 'POST',
@@ -59,7 +92,7 @@ export default function BooksList({ mode, limit, skip }: { mode: "owned" | "want
                                     });
                                     await fetchBooks();
                                 }}>
-                                ZAKUPIONA
+                                ZAKUPIONO
                             </div>}
                         </div>
                     )

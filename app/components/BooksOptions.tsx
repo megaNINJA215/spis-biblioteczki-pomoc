@@ -21,16 +21,16 @@ export default function BooksOptions(
             ownedCount: number,
             wantedCount: number,
         }) {
-    const defaultSelectStyle = "p-4 mx-2 border cursor-pointer rounded-lg sm:w-36 w-22 h-auto text-center flex items-center justify-center";
+    const defaultSelectStyle = "p-4 mx-2 border cursor-pointer rounded-lg w-36 h-auto text-center flex items-center justify-center";
     const selectedSelectStyle = "bg-blue-500 text-white " + defaultSelectStyle;
 
-    const defaultLimitStyle = "p-4 mx-2 border cursor-pointer rounded-lg sm:w-16 w-12 h-auto text-center flex items-center justify-center";
+    const defaultLimitStyle = "p-4 mx-2 border cursor-pointer rounded-lg w-16 h-auto text-center flex items-center justify-center";
     const selectedLimitStyle = "bg-blue-500 text-white " + defaultLimitStyle;
 
-    const skipStyle = "p-4 mx-2 border cursor-pointer rounded-lg sm:w-26 w-16 h-auto text-center flex items-center justify-center";
-    const skipValueStyle = "p-4 mx-2 border cursor-pointer rounded-lg sm:w-16 w-16 h-auto text-center flex items-center justify-center";
+    const skipStyle = "p-4 mx-2 border cursor-pointer rounded-lg w-26 h-auto text-center flex items-center justify-center";
+    const skipValueStyle = "p-4 mx-2 cursor-pointer rounded-lg w-16 h-auto text-center flex items-center justify-center bg-blue-200 border border-blue-500";
 
-    return <div className="w-9/10 mx-auto">
+    return <div className="w-9/10 mx-auto mb-4 flex flex-col items-center sm:block">
         <div className="flex flex-row mt-4 mb-4">
             <div
                 className={mode === "owned" ? selectedSelectStyle : defaultSelectStyle}
@@ -43,29 +43,29 @@ export default function BooksOptions(
                 Do kupienia
             </div>
         </div>
-        <div className="flex flex-row mt-4 mb-4">
+        <div className="flex flex-row sm:mt-4 mb-4">
             <div
-                className={limit === 5 ? selectedLimitStyle : defaultLimitStyle}
-                onClick={() => setLimit(5)}>
-                {5}
+                className={limit === 25 ? selectedLimitStyle : defaultLimitStyle}
+                onClick={() => setLimit(25)}>
+                {25}
             </div>
             <div
-                className={limit === 10 ? selectedLimitStyle : defaultLimitStyle}
-                onClick={() => setLimit(10)}>
-                {10}
+                className={limit === 50 ? selectedLimitStyle : defaultLimitStyle}
+                onClick={() => setLimit(50)}>
+                {50}
             </div>
             <div
-                className={limit === 15 ? selectedLimitStyle : defaultLimitStyle}
-                onClick={() => setLimit(15)}>
-                {15}
+                className={limit === 75 ? selectedLimitStyle : defaultLimitStyle}
+                onClick={() => setLimit(75)}>
+                {75}
             </div>
             <div
-                className={limit === 20 ? selectedLimitStyle : defaultLimitStyle}
-                onClick={() => setLimit(20)}>
-                {20}
+                className={limit === 100 ? selectedLimitStyle : defaultLimitStyle}
+                onClick={() => setLimit(100)}>
+                {100}
             </div>
         </div>
-        <div className="flex flex-row mt-4 mb-4">
+        <div className="flex flex-row sm:mt-4 mb-4">
             <div
                 className={skipStyle}
                 onClick={() => setSkip((prev: number) => prev - limit > 0 ? prev - limit : 0)}>

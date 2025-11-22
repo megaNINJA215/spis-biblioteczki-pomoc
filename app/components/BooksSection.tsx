@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 
 export default function BooksSection() {
     const [skip, setSkip] = useState(0);
-    const [limit, setLimit] = useState(5);
+    const [limit, setLimit] = useState(25);
     const [mode, setMode] = useState<"owned" | "wanted">("owned");
     const [ownedCount, setOwnedCount] = useState(0);
     const [wantedCount, setWantedCount] = useState(0);

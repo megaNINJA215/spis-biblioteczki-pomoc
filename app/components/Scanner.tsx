@@ -100,15 +100,15 @@ export default function Scanner({ setResult }: {
     };
 
     return (
-        <div className="flex flex-col items-center justify-center">
+        <div className="flex flex-col items-center justify-center z-5">
             {scanning ? <>
                 <div className=" h-14">
                 </div>
-                <div className="absolute min-h-full min-w-full top-0 left-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm">
+                <div className="absolute min-h-screen min-w-full top-0 left-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm">
                     <>
                         <video ref={videoRef}
                             className="rounded-md shadow-lg z-10"
-                            style={{ width: 'min(90vw, 800px)', aspectRatio: '16/9', objectFit: 'cover' }}
+                            style={{ width: 'min(90vw, 800px)', objectFit: 'cover' }}
                             playsInline
                             muted
                         />
