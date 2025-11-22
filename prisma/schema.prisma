@@ -17,10 +17,9 @@ model Books {
   ISBN           String   @id
   cover          String?
   title          String
-  original_title String?
-  volume         Int?
   authors        String
   page_count     Int?
   added_at       DateTime @default(now())
   is_owned       Boolean
+  price          Float?
 }

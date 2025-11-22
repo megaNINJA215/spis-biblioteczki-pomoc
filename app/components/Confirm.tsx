@@ -17,8 +17,7 @@ export default function Confirm(
         authors: string[],
         coverLink: string | null,
         pageCount: number | null,
-        originalTitle: string | null,
-        volumeNumber: number | null,
+        price: number | null,
     } | null>(null);
     const [error, setError] = useState<string | null>(null);
 
@@ -36,10 +35,8 @@ export default function Confirm(
                     authors: string[],
                     coverLink: string | null,
                     pageCount: number | null,
-                    originalTitle: string | null,
-                    volumeNumber: number | null,
+                    price: number | null,
                 } | null = await res.json();
-                console.log("Fetched book data:", json);
                 if (!json) {
                     setError("Nie udało się znaleźć informacji o książce.");
                     return;
@@ -60,8 +57,7 @@ export default function Confirm(
         authors: string[],
         coverLink: string | null,
         pageCount: number | null,
-        originalTitle: string | null,
-        volumeNumber: number | null,
+        price: number | null,
     } | null, mode: "owned" | "wanted") => {
         if (!data) return;
 
@@ -76,11 +72,11 @@ export default function Confirm(
         {!error ?
             <div className="absolute min-h-full min-w-full top-0 left-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm"
             >
-                <img src={data ? data?.coverLink ?? "https://www.huber-online.com/daisy_website_files/_processed_/8/0/csm_no-image_d5c4ab1322.jpg" : undefined} alt={``} className="w-80 mb-4 object-cover rounded" />
+                <img src={data ? data?.coverLink ?? "https://manmar.am/storage/products/book_not_found.jpg" : undefined} alt={``} className="w-80 mb-4 object-cover rounded" />
                 <div className="flex flex-row items-stretch justify-center">
 
                     <div className="p-4 border cursor-pointer rounded-lg text-center z-10 bg-white w-64 mx-2 flex items-center justify-center">
-                        <div>Tytuł: <strong>{data?.title ?? "Ładowanie..."}{" "}{data && 'volumeNumber' in data ? data.volumeNumber ?? "" : ""}</strong></div>
+                        <div>Tytuł: <strong>{data?.title ?? "Ładowanie..."}</strong></div>
                     </div>
                     <div className="p-4 border cursor-pointer rounded-lg text-center z-10 bg-white w-64 mx-2 flex items-center justify-center">
                         <div>{data?.authors.length == 1 ? "Autor" : "Autorzy"}: <strong>{(data?.authors?.join(", ") ?? "Ładowanie...")}</strong></div>

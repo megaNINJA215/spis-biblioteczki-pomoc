@@ -11,8 +11,6 @@ const parseOnixData = async (xmlData: string, isbn: string) => {
         }
         const product = result.ONIXMessage.Product[0];
         const title = product.DescriptiveDetail[0].TitleDetail[0]?.TitleElement[0].TitleText[0] || "";
-        const originalTitle = product.DescriptiveDetail[0].TitleDetail[1]?.TitleElement[0].TitleText[0] || "";
-        const volumeNumber = product?.DescriptiveDetail?.[0]?.TitleDetail?.[0]?.TitleElement?.[0]?.PartNumber?.[0] ?? null;
 
         const coverLink = (product.CollateralDetail ?
             product.CollateralDetail[0].SupportingResource[0].ResourceVersion[0].ResourceLink[0] ||
@@ -30,14 +28,16 @@ const parseOnixData = async (xmlData: string, isbn: string) => {
                     return contrib.PersonNameInverted[0];
                 }
             });
+        const price = product.ProductSupply ?
+            parseFloat(product.ProductSupply[0].SupplyDetail[0].Price[0].PriceAmount[0]) :
+            null;
 
 
         return {
             title,
             authors,
             coverLink,
-            originalTitle,
-            volumeNumber,
+            price
         };
     } catch (error) {
         console.error("Błąd podczas parsowania XML:", error);
@@ -49,44 +49,70 @@ const parseOnixData = async (xmlData: string, isbn: string) => {
 export async function POST(request: Request) {
     const req_data = await request.json();
     const isbn = req_data?.isbn ?? null;
-    console.log("\n\n\n\n\n\n\n\n\n\n");
 
     let response: {
         title: string,
         authors: string[],
         coverLink: string | null,
         pageCount: number | null,
-        originalTitle: string | null,
-        volumeNumber: number | null
+        price: number | null,
     }
 
     const google_api_data = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`).then(res => res.json());
 
-    if (google_api_data.totalItems > 0) {
-        response = {
-            title: google_api_data.items[0].volumeInfo.title || "",
-            authors: google_api_data.items[0].volumeInfo.authors || [],
-            coverLink: google_api_data.items[0].volumeInfo.imageLinks ? google_api_data.items[0].volumeInfo.imageLinks.thumbnail : (await fetch(`https://bookcover.longitood.com/bookcover/${isbn}`).then(res => res.json()))["url"] ?? undefined,
-            pageCount: google_api_data.items[0].volumeInfo.pageCount || 0,
-            originalTitle: null,
-            volumeNumber: null,
+    const isEmpty = (val: any): boolean => {
+        if (val === null || typeof val === "undefined") return true;
+        if (typeof val === "string") return val.trim() === "";
+        if (Array.isArray(val)) return val.length === 0;
+        if (typeof val === "number") return !(val > 0);
+        if (typeof val === "object") return Object.keys(val).length === 0;
+        return false;
+    };
+
+    const gItem = google_api_data?.totalItems > 0 ? google_api_data.items[0].volumeInfo : null;
+    const gTitle = gItem?.title;
+    const gAuthors = gItem?.authors;
+    const gPageCount = gItem?.pageCount;
+    const gCover = gItem?.imageLinks?.thumbnail || gItem?.imageLinks?.smallThumbnail || null;
+
+    let parsedOnix: any = null;
+    const needOnix = isEmpty(gTitle) || isEmpty(gAuthors) || isEmpty(gCover) || isEmpty(gPageCount);
+    if (needOnix) {
+        try {
+            const api_data = await fetch(`https://e-isbn.pl/IsbnWeb/api.xml?isbn=${isbn}`);
+            parsedOnix = await parseOnixData(await api_data.text(), isbn);
+        } catch (e) {
+            parsedOnix = null;
         }
-    } else {
-        const api_data = await fetch(`https://e-isbn.pl/IsbnWeb/api.xml?isbn=${isbn}`);
-        const parsedOnix = await parseOnixData(await api_data.text(), isbn);
-        if (!parsedOnix) {
-            return NextResponse.json({ error: "No ONIX data found for provided ISBN." }, { status: 404 });
-        }
-        // niby więcej info, ale wolę ilość stron niż oryginalny tytuł czy numer tomu
-        response = {
-            originalTitle: parsedOnix.originalTitle,
-            title: parsedOnix.title,
-            volumeNumber: parsedOnix.volumeNumber,
-            coverLink: parsedOnix.coverLink,
-            authors: parsedOnix.authors,
-            pageCount: null,
-        };
     }
-    console.log("Final response data:", response);
+
+    const hasAny = !(isEmpty(gTitle) && isEmpty(gAuthors) && isEmpty(gCover) && isEmpty(gPageCount)) || parsedOnix;
+    if (!hasAny) {
+        return NextResponse.json({ error: "Nie udało się znaleźć książki" }, { status: 404 });
+    }
+
+    const choose = (googleVal: any, onixVal: any, fallback: any) => {
+        if (!isEmpty(googleVal)) return googleVal;
+        if (!isEmpty(onixVal)) return onixVal;
+        return fallback;
+    };
+
+    response = {
+        title: choose(gTitle, parsedOnix?.title, ""),
+        authors: choose(gAuthors, parsedOnix?.authors, []),
+        coverLink: choose(gCover, parsedOnix?.coverLink, null),
+        pageCount: choose(gPageCount, parsedOnix?.pageCount, null),
+        price: parsedOnix?.price ?? null,
+    };
+
+    if (isEmpty(response.coverLink)) {
+        try {
+            const bc = await fetch(`https://bookcover.longitood.com/bookcover/${isbn}`).then(res => res.json());
+            response.coverLink = bc?.url ?? null;
+        } catch (e) {
+            // ignore
+        }
+    }
+
     return NextResponse.json(response);
 }

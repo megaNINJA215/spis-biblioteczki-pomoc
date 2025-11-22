@@ -14,7 +14,6 @@ export default function ManualInput({ setResult }: {
             return false
         }
         isbn = isbn.replaceAll('-', '');
-        console.log(isbn);
 
         switch (isbn.length) {
             case 10: {
