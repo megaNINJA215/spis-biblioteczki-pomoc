@@ -88,7 +88,7 @@ export async function POST(request: Request) {
 
     const hasAny = !(isEmpty(gTitle) && isEmpty(gAuthors) && isEmpty(gCover) && isEmpty(gPageCount)) || parsedOnix;
     if (!hasAny) {
-        return NextResponse.json({ error: "Nie udało się znaleźć książki" }, { status: 404 });
+        return NextResponse.json({ error: "Nie udało się znaleźć książki" });
     }
 
     const choose = (googleVal: any, onixVal: any, fallback: any) => {

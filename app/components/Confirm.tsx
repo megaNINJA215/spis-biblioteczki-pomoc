@@ -36,9 +36,14 @@ export default function Confirm(
                     coverLink: string | null,
                     pageCount: number | null,
                     price: number | null,
-                } | null = await res.json();
+                } | { error: string } | null = await res.json();
+
                 if (!json) {
                     setError("Nie udało się znaleźć informacji o książce.");
+                    return;
+                }
+                if ("error" in json) {
+                    setError(json.error);
                     return;
                 }
                 setData(json);
